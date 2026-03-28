@@ -15,16 +15,16 @@ fn main() {
     let file = ElfBytes::<AnyEndian>::minimal_parse(slice).expect("Fail to parse ELF file");
 
     // Here we assume the eBPF program is in the ELF section called
-    // ".classifier".
-    let classifier_section_header = match file.section_header_by_name(".classifier") {
+    // ".text".
+    let classifier_section_header = match file.section_header_by_name(".text") {
         Ok(Some(header)) => header,
-        Ok(None) => panic!("No .classifier section found"),
-        Err(e) => panic!("Error while searching for .classifier section: {}", e),
+        Ok(None) => panic!("No .text section found"),
+        Err(e) => panic!("Error while searching for .text section: {}", e),
     };
 
     let prog = file
         .section_data(&classifier_section_header)
-        .expect("Failed to get .classifier section data")
+        .expect("Failed to get .text section data")
         .0;
 
     // This is an eBPF VM for programs using a virtual metadata buffer, similar
