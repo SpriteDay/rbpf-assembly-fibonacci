@@ -1,5 +1,7 @@
 This project is exploration of rBPF and how it works - Fibonacci calculator written in assembly for rBPF. Done as practice piece for future Solana Programs development, to get intuition of the backbone of [sBPF](https://github.com/anza-xyz/sbpf)
 
+We use `src/program.s` as Assembly source of rBPF program and Rust harness using `rBPF` to run it with passsed argument
+
 ## Explanation of code
 Let's look at the first line:
 
