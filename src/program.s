@@ -38,6 +38,7 @@ increment:
     r0 += r3
     r2 += 1
     r3 += 1
+    call 6
     goto loop
 
 

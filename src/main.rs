@@ -1,5 +1,6 @@
 use elf::ElfBytes;
 use elf::endian::AnyEndian;
+use rbpf::helpers;
 use std::env;
 use std::path::PathBuf;
 
@@ -40,7 +41,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // We must provide the offsets at which the pointers to packet data start
     // and end must be stored: these are the offsets at which the program will
     // load the packet data from the metadata buffer.
-    let vm = rbpf::EbpfVmRaw::new(Some(prog)).unwrap();
+    let mut vm = rbpf::EbpfVmRaw::new(Some(prog)).unwrap();
+
+    // We register a helper function, that can be called by the program, into
+    // the VM. The `bpf_trace_printf` is only available when we have access to
+    // the standard library.
+    vm.register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
+        .unwrap();
 
     // This kind of VM takes a reference to the packet data, but does not need
     // any reference to the metadata buffer: a fixed buffer is handled
