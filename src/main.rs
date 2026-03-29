@@ -3,7 +3,15 @@ use elf::endian::AnyEndian;
 use std::env;
 use std::path::PathBuf;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let input = env::args().nth(1).expect(
+        "Please pass an argument representing the desired position of calculated Fibonacci number, e.g. 10",
+    );
+
+    let input: u64 = input.parse().expect(
+        "Please pass an argument representing the desired position of calculated Fibonacci number, e.g. 10"
+    );
+
     // Load a program from an ELF file, e.g. compiled from C to eBPF with
     // clang/LLVM. Some minor modification to the bytecode may be required.
     let out_dir = env::var("OUT_DIR").unwrap();
@@ -32,11 +40,12 @@ fn main() {
     // We must provide the offsets at which the pointers to packet data start
     // and end must be stored: these are the offsets at which the program will
     // load the packet data from the metadata buffer.
-    let vm = rbpf::EbpfVmNoData::new(Some(prog)).unwrap();
+    let vm = rbpf::EbpfVmRaw::new(Some(prog)).unwrap();
 
     // This kind of VM takes a reference to the packet data, but does not need
     // any reference to the metadata buffer: a fixed buffer is handled
     // internally by the VM.
-    let res = vm.execute_program().unwrap();
+    let res = vm.execute_program(&mut input.to_le_bytes()).unwrap();
     println!("Program returned: {:?} ({:#x})", res, res);
+    Ok(())
 }
