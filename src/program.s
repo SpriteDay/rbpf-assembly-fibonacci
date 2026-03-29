@@ -15,7 +15,8 @@
     .type entrypoint,@function
 
 entrypoint:
-    r0 = 0
+    r0 = 40
+    r0 += 2
     exit
 
     // We declare the size of start function explicitly, because ELF will check it here: https://github.com/libbpf/libbpf/blob/master/src/libbpf.c#L923
