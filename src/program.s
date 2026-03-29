@@ -15,6 +15,8 @@
     .type entrypoint,@function
 
 entrypoint:
+    // Accumulator
+    r0 = 0
     // What is this? The passed argument that we specify in Rust harness (user input in this case)
     // comes as address to the argument bytes specified in r1 register (according to https://docs.rs/rbpf/latest/rbpf/struct.EbpfVmRaw.html example).
     // Then since we used u64 for user input - we type cast the bytes at the address to u64 using C-alike syntx (u64 *)val
@@ -23,8 +25,6 @@ entrypoint:
     // *(size *) (dst + offset) = src
     // Where we must specify the offset. Since r1 already contains the address we just put 0 ofset to access the passed value
     r1 = *(u64 *)(r1 + 0)
-    // Accumulator
-    r0 = 0
     // Initial state of the loop counter
     r2 = 0
     // Number we are adding
