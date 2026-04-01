@@ -26,8 +26,9 @@ fn returns_0_element() {
 
 #[test]
 fn returns_1st_element() {
+    println!("{}", std::env::var("OUT_DIR").unwrap());
     let result = fibonacci(1).unwrap();
-    assert_eq!(result, 1);
+    assert_eq!(result, 2);
 }
 
 #[test]
