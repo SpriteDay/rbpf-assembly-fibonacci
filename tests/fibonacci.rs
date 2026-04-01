@@ -80,7 +80,7 @@ fn returns_20th_element() {
 
 #[test]
 fn returns_50th_element() {
-    let input: u64 = 3;
+    let input: u64 = 50;
     let result = run_program(input).unwrap();
     assert_eq!(result, control_fibonacci(input).unwrap());
 }
