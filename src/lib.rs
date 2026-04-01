@@ -60,6 +60,10 @@ impl<'a> RbpfProgram<'a> {
     }
 
     pub fn run(&self, mem: &mut [u8]) -> Result<u64, io::Error> {
-        self.vm.execute_program(mem)
+        let res = self.vm.execute_program(mem)?;
+        if res as i64 == -1 {
+            return Err(io::Error::new(io::ErrorKind::Other, "u64 overflow"));
+        };
+        Ok(res)
     }
 }
