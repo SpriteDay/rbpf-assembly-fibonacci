@@ -1,6 +1,8 @@
+use rbpf::helpers;
+use rbpf_assembly_fibonacci::RbpfProgram;
 use std::error::Error;
 
-fn fibonacci(n: u64) -> Result<u64, Box<dyn Error>> {
+fn control_fibonacci(n: u64) -> Result<u64, Box<dyn Error>> {
     if n == 0 {
         // Early return for clean loop
         return Ok(0);
@@ -18,27 +20,42 @@ fn fibonacci(n: u64) -> Result<u64, Box<dyn Error>> {
     Ok(num_2)
 }
 
+fn run_program(input: u64) -> Result<u64, std::io::Error> {
+    let out_dir = std::env::var("OUT_DIR").unwrap();
+    let program_path = format!("{out_dir}/program.o");
+    let program_bytes = RbpfProgram::load_bytes(program_path);
+    let mut program = RbpfProgram::new(&program_bytes);
+    program
+        .register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
+        .unwrap();
+
+    program.run(&mut input.to_le_bytes())
+}
+
 #[test]
 fn returns_0_element() {
-    let result = fibonacci(0).unwrap();
-    assert_eq!(result, 0);
+    let input: u64 = 0;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
 }
 
 #[test]
 fn returns_1st_element() {
-    println!("{}", std::env::var("OUT_DIR").unwrap());
-    let result = fibonacci(1).unwrap();
-    assert_eq!(result, 2);
+    let input: u64 = 1;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
 }
 
 #[test]
 fn returns_2nd_element() {
-    let result = fibonacci(2).unwrap();
-    assert_eq!(result, 1);
+    let input: u64 = 2;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
 }
 
 #[test]
 fn returns_3rd_element() {
-    let result = fibonacci(3).unwrap();
-    assert_eq!(result, 2);
+    let input: u64 = 3;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
 }

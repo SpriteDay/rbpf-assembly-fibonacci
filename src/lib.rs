@@ -47,7 +47,7 @@ impl<'a> RbpfProgram<'a> {
         self.vm.register_helper(key, function)
     }
 
-    pub fn execute_program(&self, mem: &mut [u8]) -> Result<u64, io::Error> {
+    pub fn run(&self, mem: &mut [u8]) -> Result<u64, io::Error> {
         self.vm.execute_program(mem)
     }
 }

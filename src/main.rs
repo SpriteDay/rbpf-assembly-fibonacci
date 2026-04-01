@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // This kind of VM takes a reference to the packet data, but does not need
     // any reference to the metadata buffer: a fixed buffer is handled
     // internally by the VM.
-    let res = program.execute_program(&mut input.to_le_bytes()).unwrap();
+    let res = program.run(&mut input.to_le_bytes()).unwrap();
 
     println!("Program returned: {:?} ({:#x})", res, res);
     Ok(())
