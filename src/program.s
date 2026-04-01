@@ -26,6 +26,10 @@ entrypoint:
     // https://www.kernel.org/doc/html/latest/bpf/verifier.html
     r6 = *(u64 *)(r1 + 0)
 
+    // Storing initial user input for logging
+    // We use read-only r10 stack pointer to make offset for our u64 value that we store
+    *(u64 *)(r10 - 8) = r6
+
     // Early return for first number
     if r6 == 0 goto early_0
 
@@ -48,6 +52,11 @@ fibonacci:
     r7 = r8
     // Update nth adding temporary stored n-1 number
     r8 += r9
+
+    // This is a check for u64 overflow - in r7 we stored previous state of r8, meaning that we compare if new value
+    // of the register is smaller then initial - this can happen with adding only if overflow happened
+    if r8 < r7 goto overflow
+
     // Increment the loop count
     r6 -= 1
 
@@ -60,12 +69,16 @@ fibonacci:
 
     goto loop
 
-invalid_input:
-    r8 = -1
-    goto finish
-
 early_0:
     r8 = 0
+    goto finish
+
+overflow:
+    // Putting initial user input to r1 for logs:
+    r1 = *(u64 *)(r10 - 8)
+    // Calling our custom helper for overflow handling
+    call 9
+    r8 = -1 // Marking invalid value with return of -1
     goto finish
 
 finish:
