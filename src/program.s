@@ -26,8 +26,7 @@ entrypoint:
     // https://www.kernel.org/doc/html/latest/bpf/verifier.html
     r6 = *(u64 *)(r1 + 0)
 
-    // Validation and early returns for first number
-    if r6 < 0 goto invalid_input
+    // Early return for first number
     if r6 == 0 goto early_0
 
     // We ruled out first number early return, now we need to do r6 - 1 loops of fibonacci:
