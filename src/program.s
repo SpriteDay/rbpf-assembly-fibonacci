@@ -52,7 +52,8 @@ fibonacci:
     // Increment the loop count
     r6 -= 1
 
-    // logging
+    // For logging we use https://docs.rs/rbpf/latest/rbpf/helpers/fn.bpf_trace_printf.html function that outputs 3,4,5 arguments ignoring
+    // first two - which means we will see r3,r4,r5 registers values in logs
     r3 = r7
     r4 = r8
     r5 = r6
