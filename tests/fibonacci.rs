@@ -38,6 +38,19 @@ fn returns_0_element() {
 }
 
 #[test]
+fn returns_largest_u64_fibonacci() {
+    let input: u64 = 93;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
+}
+
+#[test]
+#[should_panic(expected = "u64 overflow")]
+fn overflows_on_94th_element() {
+    run_program(94).unwrap();
+}
+
+#[test]
 fn returns_1st_element() {
     let input: u64 = 1;
     let result = run_program(input).unwrap();
@@ -53,6 +66,20 @@ fn returns_2nd_element() {
 
 #[test]
 fn returns_3rd_element() {
+    let input: u64 = 3;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
+}
+
+#[test]
+fn returns_20th_element() {
+    let input: u64 = 20;
+    let result = run_program(input).unwrap();
+    assert_eq!(result, control_fibonacci(input).unwrap());
+}
+
+#[test]
+fn returns_50th_element() {
     let input: u64 = 3;
     let result = run_program(input).unwrap();
     assert_eq!(result, control_fibonacci(input).unwrap());
