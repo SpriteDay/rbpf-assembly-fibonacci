@@ -1,4 +1,5 @@
 use elf::{ElfBytes, endian::AnyEndian};
+use rbpf::helpers;
 use std::{io, path::PathBuf};
 
 pub struct RbpfProgram<'a> {
@@ -45,6 +46,17 @@ impl<'a> RbpfProgram<'a> {
         function: fn(u64, u64, u64, u64, u64) -> u64,
     ) -> Result<(), io::Error> {
         self.vm.register_helper(key, function)
+    }
+
+    pub fn register_logger(&mut self) -> Result<(), io::Error> {
+        self.register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
+    }
+
+    pub fn register_overflow_handler(&mut self) -> Result<(), io::Error> {
+        self.register_helper(9, |r1, _, _, _, _| {
+            println!("Overflow encountered! Input {r1}");
+            1
+        })
     }
 
     pub fn run(&self, mem: &mut [u8]) -> Result<u64, io::Error> {

@@ -1,4 +1,3 @@
-use rbpf::helpers;
 use rbpf_assembly_fibonacci::RbpfProgram;
 use std::env;
 
@@ -20,12 +19,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut program = RbpfProgram::new(&program_bytes);
 
-    // We register a helper function, that can be called by the program, into
-    // the VM. The `bpf_trace_printf` is only available when we have access to
-    // the standard library.
-    program
-        .register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
-        .unwrap();
+    program.register_logger().unwrap();
+    program.register_overflow_handler().unwrap();
 
     // This kind of VM takes a reference to the packet data, but does not need
     // any reference to the metadata buffer: a fixed buffer is handled

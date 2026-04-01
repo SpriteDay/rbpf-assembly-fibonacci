@@ -1,4 +1,3 @@
-use rbpf::helpers;
 use rbpf_assembly_fibonacci::RbpfProgram;
 use std::error::Error;
 
@@ -25,9 +24,8 @@ fn run_program(input: u64) -> Result<u64, std::io::Error> {
     let program_path = format!("{out_dir}/program.o");
     let program_bytes = RbpfProgram::load_bytes(program_path);
     let mut program = RbpfProgram::new(&program_bytes);
-    program
-        .register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
-        .unwrap();
+    program.register_logger().unwrap();
+    program.register_overflow_handler().unwrap();
 
     program.run(&mut input.to_le_bytes())
 }
