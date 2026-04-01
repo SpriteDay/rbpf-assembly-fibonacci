@@ -62,9 +62,11 @@ fibonacci:
 
     // For logging we use https://docs.rs/rbpf/latest/rbpf/helpers/fn.bpf_trace_printf.html function that outputs 3,4,5 arguments ignoring
     // first two - which means we will see r3,r4,r5 registers values in logs
-    r3 = r7
-    r4 = r8
-    r5 = r6
+    // We put number of iteration into r3 for better logs
+    r3 = *(u64 *)(r10 - 8)
+    r3 -= r6
+    r4 = r7
+    r5 = r8
     call 6
 
     goto loop

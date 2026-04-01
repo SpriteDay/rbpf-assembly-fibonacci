@@ -49,7 +49,11 @@ impl<'a> RbpfProgram<'a> {
     }
 
     pub fn register_logger(&mut self) -> Result<(), io::Error> {
-        self.register_helper(helpers::BPF_TRACE_PRINTK_IDX, helpers::bpf_trace_printf)
+        fn log_registers(_: u64, _: u64, r3: u64, r4: u64, r5: u64) -> u64 {
+            println!("{r3:?}: {r4:?}, {r5:?}");
+            0
+        }
+        self.register_helper(helpers::BPF_TRACE_PRINTK_IDX, log_registers)
     }
 
     pub fn register_overflow_handler(&mut self) -> Result<(), io::Error> {
