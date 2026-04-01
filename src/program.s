@@ -15,32 +15,63 @@
     .type entrypoint,@function
 
 entrypoint:
-    // Accumulator
-    r0 = 0
     // What is this? The passed argument that we specify in Rust harness (user input in this case)
-    // comes as address to the argument bytes specified in r1 register (according to https://docs.rs/rbpf/latest/rbpf/struct.EbpfVmRaw.html example).
+    // comes as address to the argument bytes specified in r1 register (context passed via r1, according to https://www.kernel.org/doc/html/latest/bpf/verifier.html).
     // Then since we used u64 for user input - we type cast the bytes at the address to u64 using C-alike syntx (u64 *)val
     // Why (r1 + 0) though? According to https://www.kernel.org/doc/html/latest/bpf/standardization/instruction-set.html#regular-load-and-store-operations
     // the syntax of loading data from address to register always comes as this:
     // *(size *) (dst + offset) = src
     // Where we must specify the offset. Since r1 already contains the address we just put 0 ofset to access the passed value
-    r1 = *(u64 *)(r1 + 0)
-    // Initial state of the loop counter
-    r2 = 0
-    // Number we are adding
-    r3 = 1
+    // We use r6-r9 as callee saved registers, as r0-r5 are scratch regsiters and r10 is read-only stack pointer:
+    // https://www.kernel.org/doc/html/latest/bpf/verifier.html
+    r6 = *(u64 *)(r1 + 0)
+
+    // Validation and early returns for first number
+    if r6 < 0 goto invalid_input
+    if r6 == 0 goto early_0
+
+    // We ruled out first number early return, now we need to do r6 - 1 loops of fibonacci:
+    r6 -= 1
+
+    // First number in the sequence
+    r7 = 0
+    // Second number in the sequence
+    r8 = 1
 
 loop:
-    if r2 < r1 goto increment
-    exit
+    if r6 == 0 goto finish
+    goto fibonacci
 
-increment:
-    r0 += r3
-    r2 += 1
-    r3 += 1
+fibonacci:
+    // Temporary store n-1 number
+    r9 = r7
+    // Move nth to n-1 position
+    r7 = r8
+    // Update nth adding temporary stored n-1 number
+    r8 += r9
+    // Increment the loop count
+    r6 -= 1
+
+    // logging
+    r3 = r7
+    r4 = r8
+    r5 = r6
     call 6
+
     goto loop
 
+invalid_input:
+    r8 = -1
+    goto finish
+
+early_0:
+    r8 = 0
+    goto finish
+
+finish:
+    // Put calculated value stored in r8 to r0 used as output
+    r0 = r8
+    exit
 
     // We declare the size of start function explicitly, because ELF will check it here: https://github.com/libbpf/libbpf/blob/master/src/libbpf.c#L923
     .size entrypoint, .-entrypoint
